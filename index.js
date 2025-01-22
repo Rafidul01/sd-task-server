@@ -34,6 +34,7 @@ async function run() {
 
     const navCollection = client.db("sirajgonjDairy").collection("navLinks");
     const sellCollection = client.db("sirajgonjDairy").collection("sells");
+    const dairyCollection = client.db("sirajgonjDairy").collection("dairyCollections");
 
     app.get('/navLinks', async (req, res) => {
         const result = await navCollection.find().toArray();
@@ -44,8 +45,14 @@ async function run() {
         const type = req.params.dbclollection;
         const category = req.params.category;
         const query = {category: category}
-        const result = await sellCollection.find(query).toArray();
-        res.send(result);
+        if(type === 'collection'){
+            const result = await dairyCollection.find(query).toArray();
+            res.send(result);
+        }
+        else if(type === 'sells'){
+            const result = await sellCollection.find(query).toArray();
+            res.send(result);
+        }
     })
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
