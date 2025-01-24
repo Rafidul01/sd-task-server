@@ -5,12 +5,14 @@ require("dotenv").config();
 const port = process.env.PORT || 5000;
 
 // middleware
-const corsOptions = {
-  origin: "http://localhost:5173",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-};
-app.use(cors(corsOptions));
-
+// const corsOptions = {
+//   origin: [
+//     "https://sirajganj-dairy-task.web.app",
+//     "https://sirajganj-dairy-task.firebaseapp.com/",
+//   ],
+  
+// };
+app.use(cors());
 app.use(express.json());
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
@@ -28,11 +30,11 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
-    const navCollection = client.db("sirajgonjDairy").collection("navLinks");
-    const sellCollection = client.db("sirajgonjDairy").collection("sells");
-    const dairyCollection = client
+    const navCollection = await client.db("sirajgonjDairy").collection("navLinks");
+    const sellCollection = await client.db("sirajgonjDairy").collection("sells");
+    const dairyCollection = await client
       .db("sirajgonjDairy")
       .collection("dairyCollections");
 
@@ -48,13 +50,15 @@ async function run() {
       if (type === "collection") {
         const result = await dairyCollection.find(query).toArray();
         res.send(result);
-      } 
-      else if (type === "sells") {
+      } else if (type === "sells") {
         const result = await sellCollection.find(query).toArray();
         res.send(result);
-      }
-      else if (type === "report") {
+      } else if (type === "report") {
         const result = await sellCollection.find().toArray();
+        res.send(result);
+      }
+      else {
+        const result = await dairyCollection.find().toArray();
         res.send(result);
       }
     });
@@ -63,6 +67,8 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
+    await client.connect();
+    await client.db("admin").command({ ping: 1 });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
